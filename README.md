@@ -1,6 +1,8 @@
-# 应用需求与接口
+# 产品需求与接口
 
 ## 需求
+
+![](./prototype.png)
 
 1. 进入页面：
   - 与 mqtt broker 建立连接
@@ -37,23 +39,23 @@
   "timestamp" : 1562133595113,
   "payload" : {
     "Header" : "MEEYI",
-    "SN" : "100000000001",
-    "Type" : "nshost",
-    "Model" : "MockDev:192.168.1.190",
-    "Version" : "V1.0.1",
+    "SN" : "100000000001",  // 序列号
+    "Type" : "nshost",  // 类型
+    "Model" : "MockDev:192.168.1.190",  // 型号
+    "Version" : "V1.0.1",  // 固件版本
     "Domain" : "hispro",
     "MQTT" : "mqtt://mqtt.huanyutong.com:1883",
     "MQTT_Username" : "",
     "MQTT_Password" : "",
     "Networks" : [ {
       "Interface" : "eth1",
-      "MAC" : "C1:8F:1A:69:23:5A",
-      "DHCP" : 0,
-      "IP" : "192.168.0.3",
-      "SubnetMask" : "255.255.255.0",
-      "Gateway" : "192.168.0.1",
-      "DNS_prefer" : "8.8.8.8",
-      "DNS_alter" : "114.114.114.114"
+      "MAC" : "C1:8F:1A:69:23:5A",  // MAC 地址
+      "DHCP" : 0,  // dhcp
+      "IP" : "192.168.0.3",  // ip 地址
+      "SubnetMask" : "255.255.255.0",  // 子网掩码
+      "Gateway" : "192.168.0.1",  // 网关
+      "DNS_prefer" : "8.8.8.8",  // 首选 DNS
+      "DNS_alter" : "114.114.114.114"  // 备选 DNS
     }, {
       "Interface" : "eth0",
       "MAC" : "C4:ED:3A:F4:62:04",
