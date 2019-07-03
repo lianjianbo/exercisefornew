@@ -26,7 +26,7 @@
   - 地址：`192.168.110.12`
   - 端口：`8083`
 2. 设备发现通知：
-  - 主题：`/voerkadev/`
+  - 主题：`/voerkadev/0/broadcast/discovering/device`
   - 消息格式：
 ```js
 {
@@ -101,6 +101,8 @@
 ```
 5. 设置设备请求：
   - 请求：`PATCH http://192.168.118.190:9001/apps/hispro/api/devices/:设备序列号SN/attributes`
+  - 请求体：
+![](./request_body_for_device_attribute_patch.png)
   - 响应：
 ```js
 {
