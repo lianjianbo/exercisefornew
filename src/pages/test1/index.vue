@@ -3,7 +3,7 @@
        <div id="first">
         <el-radio v-model="radio" label="1">组播扫描</el-radio>
         <el-radio v-model="radio" label="2">指定扫描</el-radio>
-        <el-button id="scan" onclick="myFunction()" type="primary">开始扫描</el-button>
+        <el-button id="scan" v-on:click="myFunction" type="primary">{{mess}}</el-button>
         </div>
         <div>
            <el-button type="primary" plain>设备认证</el-button>
@@ -121,7 +121,7 @@
           <p>网关: <input type="text" name="lname" /></p>
           <p>首选DNS: <input type="text" name="lname" /></p>
           <p>备选DNS: <input type="text" name="lname" /></p>
-          <el-button type="primary" class="set">设置</el-button>
+          <el-button type="primary" v-on:click="setting" class="set">设置</el-button>
         </form>
         </div>
         <div class="block">
@@ -141,13 +141,14 @@
 <script>
 var mqtt = require('mqtt')
 var client
+const axios = require('axios')
 export default {
   data () {
     return {
+      mess: '开始扫描',
       client: null,
       radio: '1',
       value: false,
-      checked: true,
       multipleSelection: [],
       tableData: [{
         SN: '100000000001',
@@ -171,33 +172,67 @@ export default {
       currentPage1: 5,
       currentPage2: 5,
       currentPage3: 5,
-      currentPage4: 4,
-      methods: {
-        toggleSelection (rows) {
-          if (rows) {
-            rows.forEach(row => {
-              this.$refs.multipleTable.toggleRowSelection(row)
-            })
-          } else {
-            this.$refs.multipleTable.clearSelection()
-          }
-        },
-        handleSelectionChange (val) {
-          this.multipleSelection = val
-        },
-        handleSizeChange (val) {
-          console.log(`每页 ${val} 条`)
-        },
-        handleCurrentChange (val) {
-          console.log(`当前页: ${val}`)
-        }
+      currentPage4: 4
+    }
+  },
+  methods: {
+    toggleSelection (rows) {
+      if (rows) {
+        rows.forEach(row => {
+          this.$refs.multipleTable.toggleRowSelection(row)
+        })
+      } else {
+        this.$refs.multipleTable.clearSelection()
       }
+    },
+    handleSelectionChange (val) {
+      this.multipleSelection = val
+    },
+    handleSizeChange (val) {
+      console.log(`每页 ${val} 条`)
+    },
+    handleCurrentChange (val) {
+      console.log(`当前页: ${val}`)
+    },
+    myFunction () {
+      //  构造相关请求，发送给服务器，如果成功则按钮文字变为“停止扫描”
+      //  接收设备发现通知，添加已发现的设备到页面列表
+      var self = this
+      axios.post('http://192.168.118.190:9001/api/devices/search/start')
+        .then(function (response) {
+          //  判断文字框里的文字和status的状态
+          if (self.mess === '开始扫描' && response.data.status === 'success') {
+            self.mess = '停止扫描'
+          } else {
+            axios.post('http://192.168.118.190:9001/api/devices/search/stop')
+              .then(function (response) {
+                if (self.mess === '停止扫描' && response.data.status === 'success') {
+                  self.mess = '开始扫描'
+                } else {
+                  self.mess = '停止扫描'
+                }
+              })
+          }
+        })
+        .catch(function (error) {
+          console.log(error)
+        })
+    },
+    setting () {
+      axios.patch('http://192.168.118.190:9001/apps/hispro/api/devices/:设备序列号SN/attributes')
+        .then(function (response) {
+          if (response.data.status === 'success') {
+            alert('设置成功')
+          } else {
+            alert('设置失败')
+          }
+        })
     }
   },
   created () {
-      // 编写 mqtt 连接逻辑
+    // 编写 mqtt 连接逻辑
     client = mqtt.connect('ws://192.168.110.12:8083/mqtt')
-      // 连接
+    // 连接
     client.on('connect', function () {
       console.log('connected')
       // 订阅
