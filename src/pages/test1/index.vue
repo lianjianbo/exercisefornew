@@ -3,7 +3,7 @@
        <div id="first">
         <el-radio v-model="radio" label="1">组播扫描</el-radio>
         <el-radio v-model="radio" label="2">指定扫描</el-radio>
-        <el-button id="scan" v-on:click="myFunction" type="primary">{{mess}}</el-button>
+        <el-button id="scan" v-on:click="scanning" type="primary">{{mess}}</el-button>
         </div>
         <div>
            <el-button type="primary" plain>设备认证</el-button>
@@ -18,94 +18,84 @@
            </el-option>
            </el-select>
         </div>
-  <el-table
-       class="sn"
-    ref="multipleTable"
-    :data="tableData"
-    tooltip-effect="dark"
-    style="width: 5%"
-    @selection-change="handleSelectionChange">
+      <el-table
+      class="nav-get"
+    :data="discoveredDevices"
+    style="width: 65%"
+    :default-sort = "{prop: 'date', order: 'descending'}">
     <el-table-column
       class="select"
       type="selection"
-      height="90"
-      width="90">
+      style="width: 65%">
     </el-table-column>
-    </el-table>
-      <el-table
-      class="nav-get"
-    :data="tableData"
-    style="width: 70%"
-    :default-sort = "{prop: 'date', order: 'descending'}">
     <el-table-column
-      label="序列号"
       prop="SN"
-      width="120">
+      label="序列号"
+      sortable
+      width="107">
     </el-table-column>
     <el-table-column
       prop="Type"
       label="类型"
       sortable
-      width="120">
+      width="107">
     </el-table-column>
     <el-table-column
       prop="Version"
       label="固件版本"
       sortable
-      width="120">
+      width="107">
     </el-table-column>
     <el-table-column
       prop="MAC"
       label="MAC地址"
       sortable
-      width="120">
+      width="107">
     </el-table-column>
     <el-table-column
       prop="DHCP"
       label="DHCP"
       sortable
-      width="120">
+      width="107">
     </el-table-column>
     <el-table-column
       prop="IP"
       label="IP地址"
       sortable
-      width="120">
+      width="107">
     </el-table-column>
     <el-table-column
       prop="SubnetMask"
       label="子网掩码"
       sortable
-      width="120">
+      width="107">
     </el-table-column>
     <el-table-column
       prop="Gateway"
       label="网关"
       sortable
-      width="120">
+      width="107">
     </el-table-column>
     <el-table-column
       prop="DNS"
       label="DNS"
       sortable
-      width="120">
+      width="107">
     </el-table-column>
     <el-table-column
       prop="Iden"
       label="认证"
       sortable
-      width="120">
+      width="107">
     </el-table-column>
     <el-table-column
       prop="State"
       label="状态"
       sortable
-      width="120">
+      width="107">
     </el-table-column>
     </el-table>
-    <div class="basicset">
-     <table ><i class="el-icon-d-arrow-right"></i>基本设置</table>
-    </div>
+     <table class="arrow-right"><i class="el-icon-d-arrow-right"></i>基本设置</table>
     <div>
     <ul>
       <li class="list">序列号：</li>
@@ -124,18 +114,16 @@
           <el-button type="primary" v-on:click="setting" class="set">设置</el-button>
         </form>
         </div>
-        <div class="block">
-    <span class="demonstration"></span>
-    <el-pagination
+        <el-pagination
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
+      class="block"
       :current-page="currentPage4"
       :page-sizes="[10, 20, 30, 40]"
-      :page-size="20"
+      :page-size="10"
       layout="total, sizes, prev, pager, next, jumper"
       :total="40">
     </el-pagination>
-  </div>
    </div>
 </template>
 <script>
@@ -150,29 +138,11 @@ export default {
       radio: '1',
       value: false,
       multipleSelection: [],
-      tableData: [{
-        SN: '100000000001',
-        Type: 'nohost',
-        Version: 'v1.0.1',
-        MAC: 'C1:8F:1A:69:23:5A',
-        IP: '192.168.114.115',
-        SubnetMask: '255.255.255.0',
-        Gateway: '192.168.0.1',
-        DNS: '8.8.8.8/114.114.114.114'},
-      {
-        SN: '100000000002',
-        Type: 'nohost',
-        Version: 'v1.0.1',
-        MAC: 'C1:8F:1A:69:23:5A',
-        IP: '192.168.114.115',
-        SubnetMask: '255.255.255.0',
-        Gateway: '192.168.0.1',
-        DNS: '8.8.8.8/114.114.114.114'
-      }],
+      discoveredDevices: [{}],
       currentPage1: 5,
       currentPage2: 5,
       currentPage3: 5,
-      currentPage4: 4
+      currentPage4: 1
     }
   },
   methods: {
@@ -185,16 +155,13 @@ export default {
         this.$refs.multipleTable.clearSelection()
       }
     },
-    handleSelectionChange (val) {
-      this.multipleSelection = val
-    },
-    handleSizeChange (val) {
-      console.log(`每页 ${val} 条`)
-    },
-    handleCurrentChange (val) {
-      console.log(`当前页: ${val}`)
-    },
-    myFunction () {
+    // handleSizeChange(val) {
+    //     console.log(`每页 ${val} 条`);
+    //   },
+    //   handleCurrentChange(val) {
+    //     console.log(`当前页: ${val}`);
+    //   },
+    scanning () {
       //  构造相关请求，发送给服务器，如果成功则按钮文字变为“停止扫描”
       //  接收设备发现通知，添加已发现的设备到页面列表
       var self = this
@@ -237,9 +204,19 @@ export default {
       console.log('connected')
       // 订阅
       client.subscribe('/voerkadev/0/broadcast/discovering/device')
-      // 发布
-      client.publish('/voerkadev/0/broadcast/discovering/device', 'Hello mqtt')
-      console.log('hello mqtt')
+      // 等到订阅成功后再发布，确保消息收到
+      //   client.publish('/voerkadev/0/broadcast/discovering/device', 'Hello mqtt')
+      // })
+      // console.log('hello mqtt')
+    })
+    client.on('message', (topic, message) => {
+      console.log(`收到来自主题${topic}的消息：${message}`)
+      // 把被发现的设备添加到列表，即 push 到 discoveredDevices
+      this.discoveredDevices = []
+      this.discoveredDevices.push(
+        {SN: '100000000001', Type: 'nshost', Version: 'V1.0.1', MAC: 'C1:8F:1A:69:23:5A', DHCP: 0, IP: '192.168.0.3', SubnetMask: '255.255.255.0', Gateway: '192.168.0.1', DNS: '8.8.8.8/114.114.114.114'},
+        {SN: '100000000002', Type: 'nshost', Version: 'V1.0.1', MAC: 'C4:ED:3A:F4:62:04', DHCP: 0, IP: '192.168.0.4', SubnetMask: '255.255.255.0', Gateway: '192.168.0.1', DNS: '8.8.8.8/114.114.114.114'}
+      )
     })
   },
   beforeDestroy () {
@@ -262,25 +239,30 @@ text-align: center;
 .el-icon-d-caret{
   color: gray;
 }
-.basicset{
+/* .basicset{
   margin-top: -200px;
-  margin-left: 1390px;
-}
-.el-icon-d-arrow-right{
-  color: skyblue;
+  margin-right: 2000px;
+} */
+.arrow-right{
+   margin-left: 1300px
 }
 .sn{
-  margin-top: 55px;
+  margin-top: 30px;
 }
 .nav-get{
-  margin-left: 60px;
-  margin-top: -155px;
+  position: absolute;
+  margin-left: 10px;
+  margin-top: 10px;
 }
 .set{
   margin-right: 50px;
 }
+.el-icon-d-arrow-right{
+  color: skyblue;
+}
 .list{
-  margin-left: 1700px;
+  margin-top: 30px;
+  margin-left: 1600px;
   list-style:none;
 }
 .tab{
@@ -296,6 +278,8 @@ position: relative;
   position: absolute;
 }
 .block{
-  margin-top: 500px;
+  float: right;
+  margin-top: 600px;
+  margin-left: 200px;
 }
 </style>
